@@ -14,3 +14,7 @@ To generate the schema you can run `Tables.schema.create` first in the main meth
 
 
 ***Note***: Set your own user and password in `application.conf` and `build.sbt`.
+
+Copyright (c) 2017 47 Degrees.  All rights reserved.
+
+Licensed under Apache License. See [LICENSE](LICENSE) for terms.

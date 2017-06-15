@@ -1,4 +1,4 @@
-name := "free-slick"
+name := "freestyle-slick-example"
 
 version := "1.0"
 
@@ -9,11 +9,11 @@ scalacOptions += "-Ywarn-unused-import"
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
-  "org.postgresql"     % "postgresql"       % "9.4.1212",
+  "org.postgresql"     % "postgresql"       % "42.1.1",
   "com.typesafe.slick" %% "slick"           % "3.2.0",
   "com.typesafe.slick" %% "slick-codegen"   % "3.2.0",
-  "io.frees"           %% "freestyle"       % "0.2.0",
-  "io.frees"           %% "freestyle-slick" % "0.2.0"
+  "io.frees"           %% "freestyle"       % "0.3.0",
+  "io.frees"           %% "freestyle-slick" % "0.3.0"
 )
 
 slick := slickCodeGenTask.value // register manual sbt command
@@ -31,8 +31,8 @@ lazy val slickCodeGenTask = Def.task {
         "jdbc:postgresql://localhost/postgres?currentSchema=public",
         outputDir,
         "dao",
-        "postgres",
-        "postgres"
+        "test",
+        "test"
       ),
       streams.value.log
     ))
