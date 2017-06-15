@@ -22,6 +22,8 @@ import freestyle._
 import freestyle.implicits._
 import freestyle.slick._
 import freestyle.slick.implicits._
+import freestyle.logging._
+import freestyle.loggingJVM.implicits._
 
 import _root_.slick.jdbc.PostgresProfile.api._
 
@@ -29,7 +31,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
 
 import dao.Tables._
 
@@ -38,39 +39,47 @@ object Index {
   implicit val db: Database =
     Database.forConfig("postgres")
 
-  def main(args: Array[String]): Unit = {
-    printFuture(insertUser(email = "a@g.com", username = "a", age = Some(12)).interpret[Future])
-    printFuture(getUser("a@g.com").interpret[Future])
-    printFuture(updateUser("a@g.com", "ar", Some(24)).interpret[Future])
-    printFuture(listUser.interpret[Future])
-    printFuture(deleteUser("a@g.com").interpret[Future])
-  }
+  def main(args: Array[String]): Unit =
+    Await.result(print.interpret[Future], Duration.Inf)
 
-  def getUser(email: String) =
-    SlickM[SlickM.Op].run[UserdataRow](Userdata.filter(_.email === email).result.head)
+  def insertUser(userdata: UserdataRow): DBIO[String] =
+    (Userdata returning Userdata.map(_.email)) += userdata
 
-  def insertUser(email: String, username: String, age: Option[Int]) = {
-    SlickM[SlickM.Op].run[String](
-      (Userdata returning Userdata
-        .map(_.email)) += UserdataRow(email, username, age))
-  }
+  def insertAddress(useraddress: UseraddressRow): DBIO[String] =
+    (Useraddress returning Useraddress.map(_.useremail)) += useraddress
 
-  def updateUser(email: String, username: String, age: Option[Int]) = {
-    SlickM[SlickM.Op].run[Int](
-      Userdata.filter(_.email === email).map(p => (p.username, p.age)).update((username, age)))
-  }
+  def getUser(email: String): DBIO[UserdataRow] =
+    Userdata.filter(_.email === email).result.head
 
-  def deleteUser(email: String) =
-    SlickM[SlickM.Op].run[Int](Userdata.filter(_.email === email).delete)
+  def getAddress(email: String): DBIO[UseraddressRow] =
+    (for {
+      users   ← Userdata
+      address ← Useraddress if users.email === email && users.email === address.useremail
+    } yield address).result.head
 
-  def listUser =
-    SlickM[SlickM.Op].run[List[UserdataRow]](Userdata.result.map[List[UserdataRow]](_.toList))
+  def updateUser(email: String, username: String, age: Option[Int]): DBIO[Int] =
+    Userdata.filter(_.email === email).map(p => (p.username, p.age)).update((username, age))
 
-  def printFuture[F](future: Future[F]): Unit = {
-    Await.result(future, Duration.Inf)
-    future onComplete {
-      case Success(result) ⇒ println(s"Result: $result")
-      case Failure(e)      ⇒ println(s"Error: ${e.getMessage}")
-    }
+  def deleteUser(email: String): DBIO[Int] =
+    Userdata.filter(_.email === email).delete
+
+  def listUser: DBIO[List[UserdataRow]] =
+    Userdata.result.map[List[UserdataRow]](_.toList)
+
+  def print[F[_]: SlickM]: FreeS[F, Unit] = {
+    for {
+      email        ← insertUser(UserdataRow("a@g.com", "a", Some(12))).liftFS[F]
+      user         ← getUser(email).liftFS[F]
+      _            ← LoggingM[F].info(s"Added $user")
+      numUpdates   ← updateUser(user.email, "ar", Some(24)).liftFS[F]
+      _            ← LoggingM[F].info(s"Updates: $numUpdates")
+      userList     ← listUser.liftFS[F]
+      _            ← LoggingM[F].info(s"Users $userList")
+      addressEmail ← insertAddress(UseraddressRow(user.email, "baker", "London", "UK")).liftFS[F]
+      address      ← getAddress(addressEmail).liftFS[F]
+      _            ← LoggingM[F].info(s"Added $address")
+      numDeletes   ← deleteUser(user.email).liftFS[F]
+      _            ← LoggingM[F].info(s"Deletes: $numDeletes")
+    } yield ()
   }
 }

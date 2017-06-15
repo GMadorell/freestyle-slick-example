@@ -4,7 +4,7 @@ This project is an example of [Freestyle-Slick](http://frees.io/docs/integration
 
 ### Mapping
 
-I'm using ìn this project [Slick-CodeGen](http://slick.lightbend.com/doc/3.2.0/codegen-api/index.html#package).
+We are using ìn this project [Slick-CodeGen](http://slick.lightbend.com/doc/3.2.0/codegen-api/index.html#package).
 
 To generate the file `Tables.scala` with the mapping you can execute `sbt slick-gen`.
 

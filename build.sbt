@@ -9,11 +9,12 @@ scalacOptions += "-Ywarn-unused-import"
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
-  "org.postgresql"     % "postgresql"       % "42.1.1",
-  "com.typesafe.slick" %% "slick"           % "3.2.0",
-  "com.typesafe.slick" %% "slick-codegen"   % "3.2.0",
-  "io.frees"           %% "freestyle"       % "0.3.0",
-  "io.frees"           %% "freestyle-slick" % "0.3.0"
+  "org.postgresql"     % "postgresql"         % "42.1.1",
+  "com.typesafe.slick" %% "slick"             % "3.2.0",
+  "com.typesafe.slick" %% "slick-codegen"     % "3.2.0",
+  "io.frees"           %% "freestyle"         % "0.3.0",
+  "io.frees"           %% "freestyle-logging" % "0.3.0",
+  "io.frees"           %% "freestyle-slick"   % "0.3.0"
 )
 
 slick := slickCodeGenTask.value // register manual sbt command
