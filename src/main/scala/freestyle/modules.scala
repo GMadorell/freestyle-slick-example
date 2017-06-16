@@ -18,7 +18,6 @@ package freestyle
 
 import freestyle.slick._
 import freestyle.logging._
-
 object modules {
   @module
   trait Example {

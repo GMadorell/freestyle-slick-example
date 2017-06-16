@@ -18,69 +18,22 @@ package freestyle
 
 import cats.implicits._
 
-import freestyle._
 import freestyle.implicits._
-import freestyle.slick._
 import freestyle.slick.implicits._
-import freestyle.logging._
 import freestyle.loggingJVM.implicits._
-
-import _root_.slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Await
 
-import dao.Tables._
+import services._
 import modules._
+import persistence._
 
 object Index {
-
-  implicit val db: Database =
-    Database.forConfig("postgres")
 
   def main(args: Array[String]): Unit =
     Await.result(print[Example.Op].interpret[Future], Duration.Inf)
 
-  def insertUser(userdata: UserdataRow): DBIO[String] =
-    (Userdata returning Userdata.map(_.email)) += userdata
-
-  def insertAddress(useraddress: UseraddressRow): DBIO[String] =
-    (Useraddress returning Useraddress.map(_.useremail)) += useraddress
-
-  def getUser(email: String): DBIO[UserdataRow] =
-    Userdata.filter(_.email === email).result.head
-
-  def getAddress(email: String): DBIO[UseraddressRow] =
-    (for {
-      users   ← Userdata
-      address ← Useraddress if users.email === email && users.email === address.useremail
-    } yield address).result.head
-
-  def updateUser(email: String, username: String, age: Option[Int]): DBIO[Int] =
-    Userdata.filter(_.email === email).map(p => (p.username, p.age)).update((username, age))
-
-  def deleteUser(email: String): DBIO[Int] =
-    Userdata.filter(_.email === email).delete
-
-  def listUser: DBIO[List[UserdataRow]] =
-    Userdata.result.map[List[UserdataRow]](_.toList)
-
-  def print[F[_]: SlickM](implicit example: Example[F]): FreeS[F, Unit] = {
-    for {
-      email        ← insertUser(UserdataRow("a@g.com", "a", Some(12))).liftFS[F]
-      user         ← getUser(email).liftFS[F]
-      _            ← example.log.info(s"Added $user")
-      numUpdates   ← updateUser(user.email, "ar", Some(24)).liftFS[F]
-      _            ← example.log.info(s"Updates: $numUpdates")
-      userList     ← listUser.liftFS[F]
-      _            ← example.log.info(s"Users $userList")
-      addressEmail ← insertAddress(UseraddressRow(user.email, "baker", "London", "UK")).liftFS[F]
-      address      ← getAddress(addressEmail).liftFS[F]
-      _            ← example.log.info(s"Added $address")
-      numDeletes   ← deleteUser(user.email).liftFS[F]
-      _            ← example.log.info(s"Deletes: $numDeletes")
-    } yield ()
-  }
 }
