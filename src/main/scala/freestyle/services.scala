@@ -32,19 +32,21 @@ object services {
       executionContext: ExecutionContext): FreeS[F, Unit] = {
     for {
       _            ← createSchema.liftFS[F]
-      email        ← insertUser(UserdataRow("a@g.com", "a", Some(12))).liftFS[F]
-      user         ← getUser(email).liftFS[F]
+      _            ← example.log.info("Created schema")
+      id           ← insertUser(UserdataRow(0, "a@g.com", "a", Some(12))).liftFS[F]
+      user         ← getUser(id).liftFS[F]
       _            ← example.log.info(s"Added $user")
-      numUpdates   ← updateUser(user.email, "ar", Some(24)).liftFS[F]
+      numUpdates   ← updateUser(UserdataRow(user.id, "ad@g.com", "ar", Some(24))).liftFS[F]
       _            ← example.log.info(s"Updates: $numUpdates")
       userList     ← listUser.liftFS[F]
       _            ← example.log.info(s"Users $userList")
-      addressEmail ← insertAddress(UseraddressRow(user.email, "baker", "London", "UK")).liftFS[F]
+      addressEmail ← insertAddress(UseraddressRow(user.id, "baker", "London", "UK")).liftFS[F]
       address      ← getAddress(addressEmail).liftFS[F]
       _            ← example.log.info(s"Added $address")
-      numDeletes   ← deleteUser(user.email).liftFS[F]
+      numDeletes   ← deleteUser(user.id).liftFS[F]
       _            ← example.log.info(s"Deletes: $numDeletes")
       _            ← dropSchema.liftFS[F]
+      _            ← example.log.info("Deleted schema")
     } yield ()
   }
 }
