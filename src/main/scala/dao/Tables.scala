@@ -30,26 +30,26 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Useraddress.schema ++ Userdata.schema
+  lazy val schema: profile.SchemaDescription = userAddress.schema ++ userData.schema
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
-  /** Entity class storing rows of table Useraddress
+  /** Entity class storing rows of table UserAddress
    *  @param userId Database column user_id SqlType(int4), PrimaryKey
    *  @param street Database column street SqlType(varchar), Length(32,true)
    *  @param city Database column city SqlType(varchar), Length(32,true)
    *  @param country Database column country SqlType(varchar), Length(32,true) */
-  final case class UseraddressRow(userId: Int, street: String, city: String, country: String)
-  /** GetResult implicit for fetching UseraddressRow objects using plain SQL queries */
-  implicit def GetResultUseraddressRow(implicit e0: GR[Int], e1: GR[String]): GR[UseraddressRow] = GR{
+  final case class UserAddressRow(userId: Int, street: String, city: String, country: String)
+  /** GetResult implicit for fetching UserAddressRow objects using plain SQL queries */
+  implicit def GetResultUserAddressRow(implicit e0: GR[Int], e1: GR[String]): GR[UserAddressRow] = GR{
     prs => import prs._
-    UseraddressRow.tupled((<<[Int], <<[String], <<[String], <<[String]))
+    UserAddressRow.tupled((<<[Int], <<[String], <<[String], <<[String]))
   }
   /** Table description of table useraddress. Objects of this class serve as prototypes for rows in queries. */
-  class Useraddress(_tableTag: Tag) extends profile.api.Table[UseraddressRow](_tableTag, "useraddress") {
-    def * = (userId, street, city, country) <> (UseraddressRow.tupled, UseraddressRow.unapply)
+  class UserAddress(_tableTag: Tag) extends profile.api.Table[UserAddressRow](_tableTag, "useraddress") {
+    def * = (userId, street, city, country) <> (UserAddressRow.tupled, UserAddressRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(userId), Rep.Some(street), Rep.Some(city), Rep.Some(country)).shaped.<>({r=>import r._; _1.map(_=> UseraddressRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(userId), Rep.Some(street), Rep.Some(city), Rep.Some(country)).shaped.<>({r=>import r._; _1.map(_=> UserAddressRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column user_id SqlType(int4), PrimaryKey */
     val userId: Rep[Int] = column[Int]("user_id", O.PrimaryKey)
@@ -60,28 +60,28 @@ trait Tables {
     /** Database column country SqlType(varchar), Length(32,true) */
     val country: Rep[String] = column[String]("country", O.Length(32,varying=true))
 
-    /** Foreign key referencing Userdata (database name id_fk) */
-    lazy val userdataFk = foreignKey("id_fk", userId, Userdata)(r => r.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Cascade)
+    /** Foreign key referencing UserData (database name id_fk) */
+    lazy val userdataFK = foreignKey("id_fk", userId, userData)(r => r.id, onUpdate=ForeignKeyAction.Cascade, onDelete=ForeignKeyAction.Cascade)
   }
-  /** Collection-like TableQuery object for table Useraddress */
-  lazy val Useraddress = new TableQuery(tag => new Useraddress(tag))
+  /** Collection-like TableQuery object for table UserAddress */
+  lazy val userAddress = new TableQuery(tag => new UserAddress(tag))
 
-  /** Entity class storing rows of table Userdata
+  /** Entity class storing rows of table UserData
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
    *  @param email Database column email SqlType(varchar), Length(64,true)
    *  @param username Database column username SqlType(varchar), Length(32,true)
    *  @param age Database column age SqlType(int4), Default(None) */
-  final case class UserdataRow(id: Int, email: String, username: String, age: Option[Int] = None)
-  /** GetResult implicit for fetching UserdataRow objects using plain SQL queries */
-  implicit def GetResultUserdataRow(implicit e0: GR[Int], e1: GR[String], e2: GR[Option[Int]]): GR[UserdataRow] = GR{
+  final case class UserDataRow(id : Int, email : String, username : String, age : Option[Int] = None)
+  /** GetResult implicit for fetching UserDataRow objects using plain SQL queries */
+  implicit def GetResultUserDataRow(implicit e0: GR[Int], e1: GR[String], e2: GR[Option[Int]]): GR[UserDataRow] = GR{
     prs => import prs._
-    UserdataRow.tupled((<<[Int], <<[String], <<[String], <<?[Int]))
+    UserDataRow.tupled((<<[Int], <<[String], <<[String], <<?[Int]))
   }
   /** Table description of table userdata. Objects of this class serve as prototypes for rows in queries. */
-  class Userdata(_tableTag: Tag) extends profile.api.Table[UserdataRow](_tableTag, "userdata") {
-    def * = (id, email, username, age) <> (UserdataRow.tupled, UserdataRow.unapply)
+  class UserData(_tableTag: Tag) extends profile.api.Table[UserDataRow](_tableTag, "userdata") {
+    def * = (id, email, username, age) <> (UserDataRow.tupled, UserDataRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(email), Rep.Some(username), age).shaped.<>({r=>import r._; _1.map(_=> UserdataRow.tupled((_1.get, _2.get, _3.get, _4)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(email), Rep.Some(username), age).shaped.<>({r=>import r._; _1.map(_=> UserDataRow.tupled((_1.get, _2.get, _3.get, _4)))}, (_ :Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(serial), AutoInc, PrimaryKey */
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
@@ -92,6 +92,6 @@ trait Tables {
     /** Database column age SqlType(int4), Default(None) */
     val age: Rep[Option[Int]] = column[Option[Int]]("age", O.Default(None))
   }
-  /** Collection-like TableQuery object for table Userdata */
-  lazy val Userdata = new TableQuery(tag => new Userdata(tag))
+  /** Collection-like TableQuery object for table UserData */
+  lazy val userData = new TableQuery(tag => new UserData(tag))
 }

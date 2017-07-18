@@ -33,14 +33,14 @@ object services {
     for {
       _            ← createSchema.liftFS[F]
       _            ← example.log.info("Created schema")
-      id           ← insertUser(UserdataRow(0, "a@g.com", "a", Some(12))).liftFS[F]
+      id           ← insertUser(UserDataRow(0, "a@g.com", "a", Some(12))).liftFS[F]
       user         ← getUser(id).liftFS[F]
       _            ← example.log.info(s"Added $user")
-      numUpdates   ← updateUser(UserdataRow(user.id, "ad@g.com", "ar", Some(24))).liftFS[F]
+      numUpdates   ← updateUser(UserDataRow(user.id, "ad@g.com", "ar", Some(24))).liftFS[F]
       _            ← example.log.info(s"Updates: $numUpdates")
       userList     ← listUser.liftFS[F]
       _            ← example.log.info(s"Users $userList")
-      addressEmail ← insertAddress(UseraddressRow(user.id, "baker", "London", "UK")).liftFS[F]
+      addressEmail ← insertAddress(UserAddressRow(user.id, "baker", "London", "UK")).liftFS[F]
       address      ← getAddress(addressEmail).liftFS[F]
       _            ← example.log.info(s"Added $address")
       numDeletes   ← deleteUser(user.id).liftFS[F]
