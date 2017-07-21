@@ -31,27 +31,30 @@ object persistence {
 
   def dropSchema: DBIO[Unit] = schema.drop
 
-  def insertUser(userdata: UserdataRow): DBIO[String] =
-    (Userdata returning Userdata.map(_.email)) += userdata
+  def insertUser(userdata: UserDataRow): DBIO[Int] =
+    (userData returning userData.map(_.id)) += userdata
 
-  def insertAddress(useraddress: UseraddressRow): DBIO[String] =
-    (Useraddress returning Useraddress.map(_.useremail)) += useraddress
+  def insertAddress(useraddress: UserAddressRow): DBIO[Int] =
+    (userAddress returning userAddress.map(_.userId)) += useraddress
 
-  def getUser(email: String): DBIO[UserdataRow] =
-    Userdata.filter(_.email === email).result.head
+  def getUser(id: Int): DBIO[UserDataRow] =
+    userData.filter(_.id === id).result.head
 
-  def getAddress(email: String): DBIO[UseraddressRow] =
+  def getAddress(id: Int): DBIO[UserAddressRow] =
     (for {
-      users   ← Userdata
-      address ← Useraddress if users.email === email && users.email === address.useremail
+      users   ← userData
+      address ← userAddress if users.id === id && users.id === address.userId
     } yield address).result.head
 
-  def updateUser(email: String, username: String, age: Option[Int]): DBIO[Int] =
-    Userdata.filter(_.email === email).map(p => (p.username, p.age)).update((username, age))
+  def updateUser(user: UserDataRow): DBIO[Int] =
+    userData
+      .filter(_.id === user.id)
+      .map(p => (p.email, p.username, p.age))
+      .update((user.email, user.username, user.age))
 
-  def deleteUser(email: String): DBIO[Int] =
-    Userdata.filter(_.email === email).delete
+  def deleteUser(id: Int): DBIO[Int] =
+    userData.filter(_.id === id).delete
 
-  def listUser(implicit executionContext: ExecutionContext): DBIO[List[UserdataRow]] =
-    Userdata.result.map[List[UserdataRow]](_.toList)
+  def listUser(implicit executionContext: ExecutionContext): DBIO[List[UserDataRow]] =
+    userData.result.map[List[UserDataRow]](_.toList)
 }

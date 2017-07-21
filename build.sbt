@@ -4,7 +4,7 @@ scalaVersion := "2.12.2"
 
 scalacOptions += "-Ywarn-unused-import"
 
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
   "org.postgresql"     % "postgresql"         % "42.1.1",
